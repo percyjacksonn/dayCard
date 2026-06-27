@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>dayCard</title>
+  <link rel="icon" type="image/svg+xml" href="icon.jfif">
+  <script src="https://kit.fontawesome.com/98801804d0.js" crossorigin="anonymous"></script>  
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ===================== ROOT / RESET ===================== */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg-canvas:#09090b;
+  --bg-panel:#121214;
+  --border-color:#1f1f23;
+  --accent:rgb(59, 106, 216);
+  --accent-rgb:139,92,246;
+  --text-white:white;
+  --text-muted:#d5d5dd;
+  --text-dim:#71717a;
+  --radius:16px;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+}
+html,body{background:var(--bg-canvas);color:var(--text-white);font-family:var(--font);height:100%;overflow:hidden;}
+button{font-family:inherit;cursor:pointer;background:none;border:none;color:inherit;}
+input{font-family:inherit;}
+svg{display:block;}
+
+/* ===================== APP SHELL ===================== */
+.app{display:flex;height:100vh;width:100vw;overflow:hidden;}
+
+/* ===================== SIDEBAR OVERLAY (mobile) ===================== */
+.sidebar-overlay{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.5);
+  z-index:40;
+  opacity:0;
+  transition:opacity 0.25s;
+}
+.sidebar-overlay.open{opacity:1;}
+
+/* ===================== SIDEBAR ===================== */
+.sidebar{
+  width:260px;min-width:260px;
+  background:var(--bg-panel);
+  border-right:1px solid var(--border-color);
+  display:flex;flex-direction:column;
+  height:100vh;
+  flex-shrink:0;
+  transition:transform 0.28s cubic-bezier(.4,0,.2,1), width 0.28s cubic-bezier(.4,0,.2,1), min-width 0.28s cubic-bezier(.4,0,.2,1), opacity 0.2s ease;
+  z-index:50;
+  position:relative;
+}
+
+.sidebar-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 16px 14px;
+  border-bottom:1px solid var(--border-color);
+  flex-shrink:0;
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-logo{
+  width:34px;height:34px;border-radius:9px;
+  background:#ffffff;color:#09090b;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:15px;flex-shrink:0;
+}
+.brand-title{font-weight:700;font-size:14px;color:white;line-height:1.3;}
+.brand-sub{font-size:11px;color:var(--text-muted);}
+.icon-btn{
+  width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);transition:background 0.15s,color 0.15s;
+}
+.icon-btn:hover{background:#1c1c1f;color:var(--text-white);}
+.icon-btn svg{width:16px;height:16px;}
+
+/* TABS */
+.tab-row{
+  display:flex;
+  border-bottom:1px solid var(--border-color);
+}
+.tab{
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;
+  gap:3px;padding:11px 4px 9px;
+  color:var(--text-dim);font-size:10px;font-weight:500;
+  border-bottom:2px solid transparent;
+  transition:color 0.15s,border-color 0.15s;
+}
+.tab svg{width:17px;height:17px;}
+.tab:hover{color:var(--text-muted);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.x{
+text-color:white;
+background-color: white;
+}
+
+/* SIDEBAR SCROLL AREA */
+.sidebar-scroll{
+  flex:1;overflow-y:auto;
+  padding:14px 14px 8px;
+  display:flex;flex-direction:column;
+}
+.sidebar-scroll::-webkit-scrollbar{width:4px;}
+.sidebar-scroll::-webkit-scrollbar-thumb{background:#2a2a30;border-radius:2px;}
+
+.panel-section{margin-bottom:4px;}
+
+/* Hide inactive panels */
+.panel-section.hidden{display:none;}
+
+.section-label{
+  font-size:10px;font-weight:700;letter-spacing:0.07em;
+  text-transform:uppercase;color:var(--text-dim);
+  margin:14px 0 8px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.section-label:first-child{margin-top:0;}
+.section-label span{font-weight:500;text-transform:none;color:var(--text-muted);font-size:11px;}
+
+/* LAYOUT CARDS */
+.layout-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.layout-card{
+  position:relative;
+  background:#18181b;border:1.5px solid var(--border-color);border-radius:10px;
+  padding:10px 4px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  color:var(--text-muted);font-size:10px;font-weight:500;
+  transition:border-color 0.15s,background 0.15s,color 0.15s;
+  aspect-ratio:3/4;justify-content:flex-end;
+}
+.layout-card-preview{
+  flex:1;width:100%;
+  background:#0e0e11;border-radius:6px;
+  margin-bottom:2px;
+  display:flex;flex-direction:column;gap:3px;padding:5px 4px;overflow:hidden;
+}
+.lp-line{height:2px;border-radius:1px;background:#2a2a30;}
+.lp-line.accent{background:var(--accent);opacity:0.7;}
+.lp-line.half{width:60%;}
+.lp-line.short{width:40%;}
+.lp-sq{display:flex;gap:3px;margin-top:2px;}
+.lp-sq span{flex:1;height:8px;background:#1a1a1e;border-radius:2px;}
+.layout-card:hover{border-color:#33333a;background:#1c1c20;}
+.layout-card.active{border-color:var(--accent);background:rgba(var(--accent-rgb),0.08);color:var(--text-white);}
+.new-pill{
+  position:absolute;top:-6px;right:-3px;
+  background:var(--accent);color:white;
+  font-size:7.5px;font-weight:700;letter-spacing:0.03em;
+  padding:2px 5px;border-radius:4px;
+}
+
+/* SWATCHES */
+.swatch-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.swatch{
+  width:27px;height:27px;border-radius:50%;border:2px solid transparent;
+  transition:transform 0.15s,border-color 0.15s;flex-shrink:0;
+}
+.swatch:hover{transform:scale(1.1);}
+.swatch.active{border-color:var(--text-white);box-shadow:0 0 0 2px var(--bg-panel),0 0 0 3px var(--text-white);}
+.add-swatch{
+  background:#1c1c1f;border:1.5px dashed #3a3a40;color:var(--text-muted);
+  display:flex;align-items:center;justify-content:center;
+}
+.add-swatch svg{width:13px;height:13px;}
+
+.accent-swatch{
+  width:24px;height:24px;border-radius:50%;border:2px solid transparent;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.15s;flex-shrink:0;position:relative;
+}
+.accent-swatch:hover{transform:scale(1.12);}
+.accent-swatch svg{width:12px;height:12px;}
+.accent-swatch.active{box-shadow:0 0 0 2px var(--bg-panel),0 0 0 3px currentColor;}
+.custom-picker{background:#1c1c1f;border:1.5px dashed #3a3a40;color:var(--text-muted);cursor:pointer;}
+.custom-picker input[type="color"]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;}
+
+/* BG GRID */
+.bg-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.bg-opt{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:6px 4px;border-radius:8px;
+  border:1.5px solid var(--border-color);background:#18181b;
+  color:var(--text-muted);font-size:9.5px;
+  transition:border-color 0.15s,color 0.15s;
+}
+.bg-opt:hover{border-color:#33333a;}
+.bg-opt.active{border-color:var(--accent);color:var(--text-white);}
+.bg-preview{width:100%;height:26px;border-radius:4px;background:#0c0c0e;border:1px solid #222226;}
+.bg-preview-dots{background-image:radial-gradient(circle,#3a3a42 0.7px,transparent 0.7px);background-size:5px 5px;}
+.bg-preview-grid{background-image:linear-gradient(#2a2a30 1px,transparent 1px),linear-gradient(90deg,#2a2a30 1px,transparent 1px);background-size:6px 6px;}
+.bg-preview-waves{background-image:repeating-radial-gradient(circle at 50% 120%,transparent 0,transparent 3px,#2a2a30 4px,#2a2a30 5px);}
+.bg-preview-topo{background-image:repeating-linear-gradient(45deg,#2a2a30 0,#2a2a30 1px,transparent 1px,transparent 5px);}
+.bg-preview-none{background:#0c0c0e;}
+.bg-preview-code{background:#0c0c0e;background-image:repeating-linear-gradient(0deg,#2a2a30 0,#2a2a30 1px,transparent 1px,transparent 5px);position:relative;overflow:hidden;}
+.bg-preview-code::before{content:'</>';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#52525b;font-family:monospace;}
+
+/* SLIDER */
+.slider{
+  width:100%;-webkit-appearance:none;appearance:none;
+  height:4px;border-radius:2px;background:#27272b;margin-top:4px;outline:none;
+}
+.slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--accent);cursor:pointer;border:2px solid #fff;
+  box-shadow:0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* TOGGLE ROWS */
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0;font-size:12.5px;color:#e4e4e7;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.toggle-row:last-child{border-bottom:none;}
+.switch{position:relative;width:36px;height:20px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.switch-slider{
+  position:absolute;inset:0;background:#2a2a30;
+  border-radius:20px;transition:background 0.2s;cursor:pointer;
+}
+.switch-slider::before{
+  content:'';position:absolute;width:16px;height:16px;left:2px;top:2px;
+  background:white;border-radius:50%;transition:transform 0.2s cubic-bezier(.4,0,.2,1);
+}
+.switch input:checked+.switch-slider{background:var(--accent);}
+.switch input:checked+.switch-slider::before{transform:translateX(16px);}
+
+/* RESET BTN */
+.reset-btn{
+  margin:14px 0 10px;width:100%;padding:10px;border-radius:9px;
+  border:1.5px solid var(--border-color);background:transparent;
+  color:var(--text-muted);display:flex;align-items:center;justify-content:center;
+  gap:7px;font-size:12px;font-weight:500;
+  transition:border-color 0.15s,color 0.15s,background 0.15s;
+}
+.reset-btn svg{width:13px;height:13px;}
+.reset-btn:hover{border-color:#3a3a40;color:var(--text-white);background:#18181b;}
+
+/* ===================== MAIN AREA ===================== */
+.main{
+  flex:1;display:flex;flex-direction:column;
+  height:100vh;overflow:hidden;position:relative;
+  min-width:0;
+  transition:margin 0.28s cubic-bezier(.4,0,.2,1);
+}
+
+/* NAVBAR */
+.navbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 20px;flex-shrink:0;
+}
+.navbar-left{display:flex;align-items:center;gap:8px;}
+.navbar-right{display:flex;align-items:center;gap:8px;}
+
+/* Hamburger for mobile — shown always for collapsible sidebar */
+.hamburger-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--bg-panel);border:1px solid var(--border-color);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);transition:background 0.15s,color 0.15s;
+  flex-shrink:0;
+}
+.hamburger-btn:hover{background:#1c1c20;color:var(--text-white);}
+.hamburger-btn svg{width:16px;height:16px;transition:transform 0.2s ease;}
+
+.circ-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--bg-panel);border:1px solid var(--border-color);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);transition:background 0.15s,color 0.15s;
+}
+.circ-btn svg{width:15px;height:15px;}
+.circ-btn:hover{background:#1c1c20;color:#d4d4d8;}
+.circ-btn:disabled{opacity:0.35;cursor:default;}
+
+.pill-btn{
+  height:36px;padding:0 14px;border-radius:18px;
+  background:var(--bg-panel);border:1px solid var(--border-color);
+  display:flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:500;color:#d4d4d8;
+  transition:background 0.15s,border-color 0.15s;
+}
+.pill-btn svg{width:14px;height:14px;}
+.pill-btn:hover{background:#1c1c20;border-color:#2a2a30;}
+
+.export-btn-main{
+  height:36px;padding:0 14px;border-radius:18px;
+  background:var(--accent);border:1px solid var(--accent);
+  display:flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:600;color:white;
+  transition:filter 0.15s;position:relative;
+}
+.export-btn-main:hover{filter:brightness(1.1);}
+.export-btn-main svg{width:14px;height:14px;}
+
+/* CANVAS */
+.canvas{
+  flex:1;position:relative;overflow:auto;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:16px 16px 0;
+  background:var(--bg-canvas);
+  transition:background 0.3s ease;
+}
+.canvas[data-bg="dots"]{background-image:radial-gradient(circle,#1f1f23 1px,transparent 1px);background-size:22px 22px;}
+.canvas[data-bg="grid"]{background-image:linear-gradient(#18181b 1px,transparent 1px),linear-gradient(90deg,#18181b 1px,transparent 1px);background-size:32px 32px;}
+.canvas[data-bg="waves"]{background-image:repeating-radial-gradient(circle at 50% 100%,transparent 0,transparent 18px,#18181b 19px,#18181b 20px);background-size:90px 90px;}
+.canvas[data-bg="topography"]{background-image:repeating-linear-gradient(45deg,#18181b 0,#18181b 1px,transparent 1px,transparent 16px),repeating-linear-gradient(-45deg,#161618 0,#161618 1px,transparent 1px,transparent 16px);}
+.canvas[data-bg="code"]{
+  background-image:
+    linear-gradient(rgba(99,179,237,0.05) 1px,transparent 1px),
+    repeating-linear-gradient(90deg,transparent 0,transparent 39px,rgba(139,92,246,0.06) 39px,rgba(139,92,246,0.06) 40px);
+  background-size:100% 24px, 40px 100%;
+}
+.canvas[data-bg="none"]{background-image:none;}
+
+/* CARD STAGE */
+.card-stage{
+  position:relative;
+  width:100%;max-width:480px;
+  display:flex;flex-direction:column;align-items:center;
+}
+
+/* CAT */
+
+/* ===================== CARD COMMON ===================== */
+.card{
+  display:none;
+  width:80%;
+  background:rgba(15,15,20,0.92);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:var(--radius);
+  padding:20px;
+  position:relative;
+  flex-direction:column;
+  gap:14px;
+}
+.card.active{
+  display:flex;
+  animation:cardFadeIn 0.3s ease forwards;
+}
+@keyframes cardFadeIn{
+  from{opacity:0;transform:translateY(5px) scale(0.99);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+.card::before{
+  content:'';position:absolute;inset:-1px;
+  border-radius:inherit;padding:1.5px;
+  background:black;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  pointer-events:none;opacity:0.85;z-index:0;
+  transition:background 0.3s;
+  border: #09090b;
+}
+.card>*{position:relative;z-index:1;}
+
+/* CARD BG PATTERN (applied only to card bg) */
+.card-bg-pattern{
+  position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;z-index:0;opacity:0.15;
+  transition:all 0.3s;
+}
+.card[data-cardbg="dots"] .card-bg-pattern{background-image:radial-gradient(circle,#ffffff 0.8px,transparent 0.8px);background-size:16px 16px;}
+.card[data-cardbg="grid"] .card-bg-pattern{background-image:linear-gradient(rgba(255,255,255,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.5) 1px,transparent 1px);background-size:20px 20px;}
+.card[data-cardbg="waves"] .card-bg-pattern{background-image:repeating-radial-gradient(circle at 50% 100%,transparent 0,transparent 12px,rgba(255,255,255,0.3) 13px,rgba(255,255,255,0.3) 14px);background-size:60px 60px;}
+.card[data-cardbg="topography"] .card-bg-pattern{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.15) 0,rgba(255,255,255,0.15) 1px,transparent 1px,transparent 10px);}
+.card[data-cardbg="code"] .card-bg-pattern{
+  background-image:
+    linear-gradient(rgba(255,255,255,0.4) 1px,transparent 1px),
+    repeating-linear-gradient(90deg,transparent 0,transparent 23px,rgba(255,255,255,0.3) 23px,rgba(255,255,255,0.3) 24px);
+  background-size:100% 16px, 24px 100%;
+  opacity:0.5;
+}
+
+/* CARD HEADER */
+.card-header{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+.avatar{
+  width:72px;height:72px;border-radius:14px;overflow:hidden;
+  flex-shrink:0;position:relative;cursor:pointer;
+  background:linear-gradient(135deg,rgba(99,102,241,0.25),rgba(139,92,246,0.25));
+  border:1px solid rgba(255,255,255,0.1);
+  display:flex;align-items:center;justify-content:center;
+}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+.avatar-input{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;}
+.avatar-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,0.5);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity 0.15s;z-index:1;
+}
+.avatar-overlay svg{width:16px;height:16px;}
+.avatar:hover .avatar-overlay{opacity:1;}
+.avatar-placeholder{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;color:rgba(255,255,255,0.35);width:100%;height:100%;
+}
+.avatar-placeholder svg{width:20px;height:20px;}
+.avatar-placeholder span{font-size:9px;font-weight:500;text-align:center;line-height:1.2;}
+
+.header-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;}
+.day-row{
+  font-size:24px;font-weight:800;color:white;
+  display:flex;align-items:baseline;gap:3px;
+}
+.day-total,.day-total-link{color:var(--accent);font-weight:800;}
+.day-label-static{color:var(--text-muted);font-weight:600;font-size:20px;}
+
+.dot-progress{display:flex;gap:4px;align-items:center;}
+.dot{width:14px;height:3px;border-radius:2px;background:#2a2a30;}
+.dot.filled{background:white;}
+
+.date-stamp,.date-stamp-link{
+  display:flex;align-items:center;gap:5px;
+  color:var(--text-muted);font-size:12px;margin-top:2px;
+}
+.date-stamp svg,.date-stamp-link svg{width:12px;height:12px;flex-shrink:0;}
+
+.header-utils{display:flex;gap:5px;flex-shrink:0;margin-top:2px;}
+.util-btn{
+  width:28px;height:28px;border-radius:7px;
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);transition:background 0.15s,color 0.15s;
+}
+.util-btn svg{width:13px;height:13px;}
+.util-btn:hover{background:rgba(255,255,255,0.1);color:#f6f6f8;}
+
+[contenteditable="true"]{outline:none;border-radius:4px;transition:background 0.15s;cursor:text;}
+[contenteditable="true"]:hover{background:rgba(255,255,255,0.04);}
+[contenteditable="true"]:focus{background:rgba(139,92,246,0.1);box-shadow:0 0 0 1px rgba(139,92,246,0.4);}
+
+/* BLOCKQUOTE */
+.blockquote-box{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;padding:14px 16px;
+  position:relative;
+}
+.quote-icon{width:20px;height:20px;color:var(--accent);opacity:0.6;margin-bottom:5px;}
+.blockquote-text{font-size:13.5px;line-height:1.65;color:#ffffff;}
+
+/* METRICS ROW */
+.metric-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  transition:grid-template-columns 0.25s ease;
+}
+.metric-row[data-count="2"]{grid-template-columns:repeat(2,1fr);}
+.metric-row[data-count="1"]{grid-template-columns:1fr;}
+.metric-box{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;padding:12px 10px 10px;
+  display:flex;flex-direction:column;gap:2px;
+  transition:opacity 0.2s;
+}
+.metric-box.hidden{display:none;}
+.metric-top{display:flex;align-items:center;gap:5px;margin-bottom:4px;}
+.metric-icon-sm{width:13px;height:13px;}
+.metric-icon-sm.flame{color:#f97316;}
+.metric-icon-sm.clock{color:#3b82f6;}
+.metric-icon-sm.target{color:#22c55e;}
+.metric-icon-sm.check{color:#22c55e;}
+.metric-label{font-size:9.5px;font-weight:700;letter-spacing:0.07em;color:var(--text-dim);}
+.metric-value{font-size:26px;font-weight:900;color:white;line-height:1;min-width:10px;}
+.metric-value.cyan{color:#67e8f9;}
+.metric-value.green{color:#4ade80;}
+.metric-sub{font-size:10px;color:var(--text-dim);}
+
+/* For focus time split h/m */
+.metric-value-group{display:flex;align-items:baseline;gap:1px;line-height:1;}
+.metric-value-group .val{font-size:26px;font-weight:900;color:white;}
+.metric-value-group .unit{font-size:13px;font-weight:700;color:#67e8f9;margin-right:2px;}
+
+/* FOOTER STRIP */
+.footer-strip{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:10px;border-top:1px solid rgba(255,255,255,0.07);
+  font-size:11.5px;color:var(--text-muted);font-style:italic;
+}
+.footer-strip-left{display:flex;align-items:center;gap:6px;min-width:0;}
+.footer-strip-left svg{width:13px;height:13px;color:#eab308;flex-shrink:0;}
+.mountain-badge{width:18px;height:18px;color:var(--text-dim);flex-shrink:0;}
+
+/* ===================== CHECKLIST LAYOUT ===================== */
+.alert-box{
+  background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.22);
+  border-radius:10px;padding:10px 12px;
+  display:flex;align-items:center;gap:8px;
+  font-size:12.5px;color:#86efac;
+  min-height:40px;
+}
+.alert-box svg{width:14px;height:14px;flex-shrink:0;}
+
+.checklist-box{display:flex;flex-direction:column;gap:6px;}
+.checklist-item{display:flex;align-items:flex-start;gap:8px;padding:2px 0;}
+.check-toggle{
+  width:18px;height:18px;border-radius:5px;
+  border:1.5px solid #3a3a40;background:transparent;
+  flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.15s,border-color 0.15s;
+}
+.check-toggle svg{width:11px;height:11px;color:white;opacity:0;transition:opacity 0.1s;}
+.checklist-item.checked .check-toggle{background:#22c55e;border-color:#22c55e;}
+.checklist-item.checked .check-toggle svg{opacity:1;}
+.checklist-item-text{
+  font-size:13px;line-height:1.5;color:#e4e4e7;flex:1;
+}
+.checklist-item.checked .checklist-item-text{text-decoration:line-through;color:var(--text-dim);}
+.task-delete{
+  width:20px;height:20px;flex-shrink:0;
+  color:var(--text-dim);opacity:0;
+  transition:opacity 0.15s,color 0.15s;
+  display:flex;align-items:center;justify-content:center;
+}
+.task-delete svg{width:12px;height:12px;}
+.checklist-item:hover .task-delete{opacity:1;}
+.task-delete:hover{color:#ef4444;}
+
+.add-task-btn{
+  display:flex;align-items:center;gap:5px;
+  color:var(--accent);font-size:12.5px;font-weight:600;
+  padding:4px 0;align-self:flex-start;
+  transition:opacity 0.15s;
+}
+.add-task-btn svg{width:13px;height:13px;}
+.add-task-btn:hover{opacity:0.75;}
+
+/* ===================== SNAPSHOTS LAYOUT ===================== */
+.snap-photo-wrap{
+  position:relative;width:100%;
+  border-radius:12px;overflow:hidden;
+  background:linear-gradient(135deg,rgba(99,102,241,0.18),rgba(139,92,246,0.18));
+  border:1px solid rgba(255,255,255,0.1);
+  min-height:150px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.snap-photo-wrap img{
+  width:100%;height:100%;max-height:230px;object-fit:cover;display:block;
+}
+.snap-photo-input{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:3;}
+.snap-photo-placeholder{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;color:rgba(255,255,255,0.4);padding:26px 10px;width:100%;
+}
+.snap-photo-placeholder svg{width:24px;height:24px;}
+.snap-photo-placeholder span{font-size:11px;font-weight:500;text-align:center;line-height:1.3;}
+.snap-photo-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,0.45);
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  opacity:0;transition:opacity 0.15s;z-index:2;
+  color:white;font-size:11.5px;font-weight:600;
+}
+.snap-photo-overlay svg{width:15px;height:15px;}
+.snap-photo-wrap:hover .snap-photo-overlay{opacity:1;}
+.snap-photo-wrap.has-image{background:#0e0e11;}
+
+.snapshot-scroll{
+  display:flex;gap:10px;overflow-x:auto;
+  padding-bottom:6px;
+  scroll-snap-type:x mandatory;
+}
+.snapshot-scroll::-webkit-scrollbar{height:3px;}
+.snapshot-scroll::-webkit-scrollbar-thumb{background:#2a2a30;border-radius:2px;}
+.snap-panel{
+  flex-shrink:0;width:200px;
+  background:#0e0e11;
+  border:1px solid var(--border-color);border-radius:10px;
+  padding:10px;min-height:140px;
+  display:flex;flex-direction:column;
+  scroll-snap-align:start;
+}
+.panel-dots{display:flex;gap:4px;margin-bottom:8px;}
+.panel-dots span{width:7px;height:7px;border-radius:50%;background:#3a3a40;}
+.panel-dots span:nth-child(1){background:#ef4444;}
+.panel-dots span:nth-child(2){background:#eab308;}
+.panel-dots span:nth-child(3){background:#22c55e;}
+.code-mock{
+  font-family:'SF Mono','Fira Code',Consolas,monospace;
+  font-size:9.5px;line-height:1.6;color:#d4d4d8;
+  white-space:pre-wrap;word-break:break-word;
+  outline:none;min-height:60px;
+}
+.code-mock:hover{background:rgba(255,255,255,0.04);border-radius:4px;}
+.code-mock:focus{background:rgba(139,92,246,0.1);box-shadow:0 0 0 1px rgba(139,92,246,0.4);border-radius:4px;}
+.c-kw{color:#c084fc;}.c-fn{color:#60a5fa;}.c-str{color:#4ade80;}.c-comment{color:#6b7280;}.c-attr{color:#fb923c;}
+
+.progress-panel{
+  flex-shrink:0;width:160px;
+  background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(139,92,246,0.1));
+  border:1px solid rgba(20, 20, 21, 0.25);border-radius:10px;
+  padding:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  scroll-snap-align:start;
+}
+.ring-wrap{position:relative;width:64px;height:64px;}
+.ring-svg{width:100%;height:100%;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:rgba(255,255,255,0.1);stroke-width:8;}
+.ring-fg{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:188;transition:stroke-dashoffset 0.6s ease;}
+.ring-label{position:absolute;color:white;inset:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;outline:none;border-radius:50%;}
+.ring-label:hover{background:rgba(255,255,255,0.08);}
+.ring-label:focus{background:rgba(139,92,246,0.15);box-shadow:0 0 0 1px rgba(139,92,246,0.4);}
+.progress-name{font-size:11px;font-weight:500;color:rgba(255,255,255,0.6);outline:none;border-radius:4px;padding:1px 3px;}
+.progress-name:hover{background:rgba(255,255,255,0.06);}
+.progress-name:focus{background:rgba(139,92,246,0.12);box-shadow:0 0 0 1px rgba(139,92,246,0.4);}
+
+/* ===================== ACTION TRAY ===================== */
+.action-tray{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  background:rgba(18,18,20,0.95);
+  border:1px solid var(--border-color);
+  border-radius:50px;padding:6px;
+  margin:12px auto 10px;
+  width:fit-content;flex-shrink:0;position:relative;z-index:5;
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+.tray-sep{width:1px;height:28px;background:var(--border-color);flex-shrink:0;}
+.tray-btn{
+  display:flex;flex-direction:column;align-items:center;
+  gap:3px;padding:8px 14px;
+  border-radius:40px;transition:background 0.15s;
+}
+.tray-btn svg{width:18px;height:18px;color:rgba(255,255,255,0.75);}
+.tray-btn span{font-size:9.5px;font-weight:700;color:rgba(255,255,255,0.6);letter-spacing:0.02em;}
+.tray-btn:hover{background:rgba(255,255,255,0.06);}
+.tray-btn:hover svg{color:white;}
+.tray-btn:hover span{color:rgba(255,255,255,0.85);}
+
+/* ===================== TOAST ===================== */
+.toast{
+  position:fixed;bottom:80px;left:50%;
+  transform:translateX(-50%) translateY(10px);
+  background:#18181b;border:1px solid #2a2a30;color:white;
+  padding:10px 18px;border-radius:9px;
+  font-size:13px;font-weight:500;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+  opacity:0;pointer-events:none;
+  transition:opacity 0.25s,transform 0.25s;z-index:1000;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ===================== MODAL ===================== */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.6);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;transition:opacity 0.2s,visibility 0.2s;z-index:2000;
+}
+.modal-overlay.open{opacity:1;visibility:visible;}
+.modal{
+  background:var(--bg-panel);border:1px solid var(--border-color);
+  border-radius:16px;padding:22px;width:360px;
+  transform:scale(0.96);transition:transform 0.2s;
+}
+.modal-overlay.open .modal{transform:scale(1);}
+.modal h3{font-size:15px;margin-bottom:8px;}
+.modal p{font-size:12.5px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;}
+.modal-link-row{display:flex;gap:7px;margin-bottom:14px;}
+.modal-link-row input{
+  flex:1;background:#0e0e11;border:1px solid var(--border-color);
+  border-radius:8px;padding:9px 10px;color:var(--text-muted);font-size:12px;
+}
+.modal-link-row button{
+  background:var(--accent);color:white;padding:9px 14px;border-radius:8px;
+  font-size:12.5px;font-weight:600;transition:filter 0.15s;
+}
+.modal-link-row button:hover{filter:brightness(1.1);}
+.modal-close{
+  width:100%;text-align:center;padding:9px;border-radius:8px;
+  border:1px solid var(--border-color);color:var(--text-muted);
+  font-size:12.5px;transition:background 0.15s;
+}
+.modal-close:hover{background:#1c1c20;}
+
+/* ===================== RESPONSIVE ===================== */
+
+/* Desktop collapsed sidebar state (>768px): collapse width instead of translate, no overlay */
+@media(min-width:769px){
+  .sidebar.collapsed{
+    width:0;min-width:0;
+    border-right-color:transparent;
+    overflow:hidden;
+    opacity:0;
+    pointer-events:none;
+  }
+}
+
+@media(max-width:768px){
+  .sidebar{
+    position:fixed;left:0;top:0;bottom:0;
+    transform:translateX(-100%);
+    z-index:50;
+    width:260px;min-width:260px;
+    opacity:1;
+  }
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-overlay{display:block;}
+  .card{width:92%;}
+}
+@media(max-width:480px){
+  .day-row{font-size:20px;}
+  .metric-value,.metric-value-group .val{font-size:22px;}
+  .tray-btn{padding:6px 10px;}
+  .action-tray{flex-wrap:nowrap;overflow-x:auto;max-width:94vw;}
+  .snap-panel{width:170px;}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:0.001ms!important;transition-duration:0.001ms!important;}}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ============ LEFT SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="brand-logo">R</div>
+        <div class="brand-text">
+          <div class="brand-title">Day Card</div>
+          <div class="brand-sub">Design your progress</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="tab-row">
+      <button class="tab active" data-tab="layout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Layout
+      </button>
+      <button class="tab" data-tab="theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18 5 5 0 0 1 0-10 4 4 0 0 0 0-8Z"/></svg>
+        Theme
+      </button>
+    </nav>
+
+    <div class="sidebar-scroll">
+
+      <!-- LAYOUTS PANEL -->
+      <section class="panel-section" id="panel-layout">
+        <div class="section-label">Layouts</div>
+        <div class="layout-row">
+          <button class="layout-card active" data-layout="compact">
+            <div class="layout-card-preview">
+              <div class="lp-line accent short"></div>
+              <div class="lp-line half"></div>
+              <div class="lp-line"></div>
+              <div class="lp-line"></div>
+              <div class="lp-line half"></div>
+              <div class="lp-sq"><span></span><span></span><span></span></div>
+            </div>
+            <span>Compact</span>
+          </button>
+          <button class="layout-card" data-layout="checklist">
+            <div class="layout-card-preview">
+              <div class="lp-line accent short"></div>
+              <div class="lp-line half"></div>
+              <div style="display:flex;gap:2px;margin-top:3px;"><div style="width:5px;height:5px;border-radius:1px;background:#2a2a30;flex-shrink:0;"></div><div class="lp-line" style="margin:0;flex:1;height:5px;"></div></div>
+              <div style="display:flex;gap:2px;margin-top:2px;"><div style="width:5px;height:5px;border-radius:1px;background:#22c55e;flex-shrink:0;"></div><div class="lp-line" style="margin:0;flex:1;height:5px;"></div></div>
+              <div style="display:flex;gap:2px;margin-top:2px;"><div style="width:5px;height:5px;border-radius:1px;background:#2a2a30;flex-shrink:0;"></div><div class="lp-line" style="margin:0;flex:1;height:5px;"></div></div>
+            </div>
+            <span>Checklist</span>
+          </button>
+          <button class="layout-card" data-layout="snapshots">
+            <span class="new-pill">NEW</span>
+            <div class="layout-card-preview">
+              <div class="lp-line accent short"></div>
+              <div class="lp-line half"></div>
+              <div style="display:flex;gap:2px;flex:1;margin-top:3px;">
+                <div style="flex:1;background:#1a1a1e;border-radius:2px;"></div>
+                <div style="flex:1;background:#1a1a1e;border-radius:2px;"></div>
+              </div>
+            </div>
+            <span>Snapshots</span>
+          </button>
+        </div>
+
+        <div class="section-label" style="margin-top:16px;">Card Options</div>
+        <div style="display:flex;flex-direction:column;">
+          <div class="toggle-row"><span>Show Day</span><label class="switch"><input type="checkbox" class="opt-toggle" data-target="day" checked /><span class="switch-slider"></span></label></div>
+          <div class="toggle-row"><span>Show Streak</span><label class="switch"><input type="checkbox" class="opt-toggle" data-target="streak" checked /><span class="switch-slider"></span></label></div>
+          <div class="toggle-row"><span>Show Focus Time</span><label class="switch"><input type="checkbox" class="opt-toggle" data-target="focus" checked /><span class="switch-slider"></span></label></div>
+          <div class="toggle-row"><span>Show Tasks Done<sub>(Checklist)</sub></span><label class="switch"><input type="checkbox" class="opt-toggle" data-target="tasks" checked /><span class="switch-slider"></span></label></div>
+          <div class="toggle-row"><span>Show Extra Stat</span><label class="switch"><input type="checkbox" class="opt-toggle" data-target="extra" checked /><span class="switch-slider"></span></label></div>
+        </div>
+      </section>
+
+      <!-- THEME PANEL -->
+      <section class="panel-section hidden" id="panel-theme">
+        <div class="section-label" style="margin-top:0">Theme</div>
+      
+
+        <div class="section-label">Background (Card)</div>
+        <div class="bg-grid">
+          <button class="bg-opt active" data-bg="dots"><span class="bg-preview bg-preview-dots"></span><span>Dots</span></button>
+          <button class="bg-opt" data-bg="grid"><span class="bg-preview bg-preview-grid"></span><span>Grid</span></button>
+          <button class="bg-opt" data-bg="waves"><span class="bg-preview bg-preview-waves"></span><span>Waves</span></button>
+          <button class="bg-opt" data-bg="topography"><span class="bg-preview bg-preview-topo"></span><span>Topo</span></button>
+          <button class="bg-opt" data-bg="code"><span class="bg-preview bg-preview-code"></span><span>Code</span></button>
+          <button class="bg-opt" data-bg="none"><span class="bg-preview bg-preview-none"></span><span>None</span></button>
+        </div>
+
+        <div class="section-label">Accent Color</div>
+        <div class="swatch-row" id="accent-row">
+          <button class="accent-swatch active" data-accent="#8b5cf6" style="background:#745bae">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+          <button class="accent-swatch" data-accent="#3b82f6" style="background:#3b82f6"></button>
+          <button class="accent-swatch" data-accent="#06b6d4" style="background:#06b6d4"></button>
+          <button class="accent-swatch" data-accent="#22c55e" style="background:#22c55e"></button>
+          <button class="accent-swatch" data-accent="#eab308" style="background:#eab308"></button>
+          <button class="accent-swatch" data-accent="#ef4444" style="background:#ef4444"></button>
+          <label class="accent-swatch custom-picker" title="Custom color">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-4 4-7 8-7 12a7 7 0 0 0 14 0c0-4-3-8-7-12Z"/></svg>
+            <input type="color" id="custom-accent-input" value="#8b5cf6" />
+          </label>
+        </div>
+
+        <div class="section-label">Border Radius <span id="radius-value">16px</span></div>
+        <input type="range" id="radius-slider" min="0" max="40" value="16" class="slider" />
+
+        <div class="section-label"></div>
+      </section>
+
+      <!-- STICKERS / TEXT = coming soon -->
+      <section class="panel-section hidden" id="panel-stickers">
+        <div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-dim);font-size:13px;border:1.5px dashed #2a2a30;border-radius:10px;margin-top:16px;">Coming soon</div>
+      </section>
+      <section class="panel-section hidden" id="panel-text">
+        <div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-dim);font-size:13px;border:1.5px dashed #2a2a30;border-radius:10px;margin-top:16px;">Coming soon</div>
+      </section>
+
+      <button class="reset-btn" id="reset-all-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>
+        Reset All
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN AREA ============ -->
+  <main class="main">
+
+    <!-- TOP NAVBAR -->
+    <header class="navbar">
+      <div class="navbar-left">
+        <button class="hamburger-btn" id="hamburger-btn" title="Toggle sidebar" aria-label="Toggle sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="navbar-right">
+        <div class="x"> <a title="X" target="_blank" href="https://x.com/Percyjackgrace" ><i class="fa-brands fa-x-twitter fa-l"></i></a>
+        </div>
+        <div class="x" ><a title="Github" target="_blank" href="https://github.com/percyjacksonn/" ><i class="fa-brands fa-github fa-xl "></i></a>
+        </div>
+      </div>
+    </header>
+
+    <!-- WORKSPACE -->
+    <section class="canvas" id="canvas" data-bg="dots">
+
+      <div class="card-stage" id="card-stage">
+        <!-- CAT -->
+        <div class="cat-wrap" id="cat">
+          <div class="meow-bubble" id="meow-bubble"></div>
+        </div>
+
+        <!-- ===== COMPACT CARD ===== -->
+        <article class="card card-compact active" id="card-compact" data-glow="on" data-cardbg="dots">
+          <div class="card-bg-pattern"></div>
+          <!-- Header -->
+          <div class="card-header">
+            <div class="avatar" id="avatar-compact" title="Click to upload photo">
+              <div class="avatar-placeholder" id="avatar-placeholder-compact">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>Click to<br>upload photo</span>
+              </div>
+              <img id="avatar-img-compact" style="display:none;width:100%;height:100%;object-fit:cover;" alt="profile" />
+              <input type="file" accept="image/*" class="avatar-input" id="avatar-input-compact" />
+              <div class="avatar-overlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+              </div>
+            </div>
+            <div class="header-info" data-show="day">
+              <div class="day-row">
+                <span style="font-size:24px;font-weight:800;">Day&nbsp;</span>
+                <span class="day-current" contenteditable="true" data-field="dayCurrent">24</span>
+                <span class="day-label-static">/</span>
+                <span class="day-total" contenteditable="true" data-field="dayTotal">100</span>
+              </div>
+              <div class="dot-progress" id="dot-progress-compact">
+                <div class="dot filled"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+              </div>
+              <div class="date-stamp">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span contenteditable="true" data-field="date">24 June 2026</span>
+              </div>
+            </div>
+            <div class="header-utils">
+              <button class="util-btn" title="Edit" data-action-btn="edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+              </button>
+              <button class="util-btn" title="Delete" data-action-btn="delete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quote block -->
+          <div class="blockquote-box">
+            <svg class="quote-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M9.5 4C5.36 4 2 7.36 2 11.5c0 3.31 2.69 6 6 6 .55 0 1-.45 1-1s-.45-1-1-1c-2.21 0-4-1.79-4-4 0-.34.05-.66.13-.98C5.07 10.81 6.46 11.5 8 11.5c2.21 0 4-1.79 4-4S10.21 4 9.5 4zm10 0c-4.14 0-7.5 3.36-7.5 7.5 0 3.31 2.69 6 6 6 .55 0 1-.45 1-1s-.45-1-1-1c-2.21 0-4-1.79-4-4 0-.34.05-.66.13-.98.94 1.29 2.33 1.98 3.87 1.98 2.21 0 4-1.79 4-4S21.71 4 19.5 4z"/></svg>
+            <p class="blockquote-text" contenteditable="true" data-field="quote">It's been a long day of coding. Started understanding complex React state patterns and implemented a new UI component. Progress feels slow but steady.</p>
+          </div>
+
+          <!-- Metrics -->
+          <div class="metric-row" id="metric-row-compact">
+            <div class="metric-box" data-metric="streak">
+              <div class="metric-top">
+                <svg class="metric-icon-sm flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                <div class="metric-label">STREAK</div>
+              </div>
+              <div class="metric-value" contenteditable="true" data-field="streakValue">24</div>
+              <div class="metric-sub">days</div>
+            </div>
+            <div class="metric-box" data-metric="focus">
+              <div class="metric-top">
+                <svg class="metric-icon-sm clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <div class="metric-label">FOCUS TIME</div>
+              </div>
+              <div class="metric-value-group">
+                <span class="val" contenteditable="true" data-field="focusHours">5</span><span class="unit">h</span><span class="val" contenteditable="true" data-field="focusMinutes">25</span><span class="unit">m</span>
+              </div>
+              <div class="metric-sub">today</div>
+            </div>
+            <div class="metric-box" data-metric="extra">
+              <div class="metric-top">
+                <svg class="metric-icon-sm target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+                <div class="metric-label">FOCUS %</div>
+              </div>
+              <div class="metric-value green" contenteditable="true" data-field="extraValue">85</div>
+              <div class="metric-sub" style="color:#4ade80">%</div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="footer-strip">
+            <div class="footer-strip-left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 5 5.5.8-4 4 1 5.5L12 15l-5 2.3 1-5.5-4-4 5.5-.8z"/></svg>
+              <span contenteditable="true" data-field="footerQuote">Discipline today, freedom tomorrow.</span>
+            </div>
+            <svg class="mountain-badge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19l5-9 4 5 3-5 6 9z"/></svg>
+          </div>
+        </article>
+
+        <!-- ===== CHECKLIST CARD ===== -->
+        <article class="card card-checklist" id="card-checklist" data-glow="on" data-cardbg="dots">
+          <div class="card-bg-pattern"></div>
+          <div class="card-header">
+            <div class="avatar" id="avatar-checklist" title="Click to upload photo">
+              <div class="avatar-placeholder" id="avatar-placeholder-checklist">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                <span>Click to<br>upload photo</span>
+              </div>
+              <img id="avatar-img-checklist" style="display:none;width:100%;height:100%;object-fit:cover;" alt="profile" />
+              <input type="file" accept="image/*" class="avatar-input" id="avatar-input-checklist" />
+              <div class="avatar-overlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+              </div>
+            </div>
+            <div class="header-info" data-show="day">
+              <div class="day-row">
+                <span style="font-size:24px;font-weight:800;">Day&nbsp;</span>
+                <span class="day-current" contenteditable="true" data-field="dayCurrent">24</span>
+                <span class="day-label-static">/</span>
+                <span class="day-total" contenteditable="true" data-field="dayTotal">100</span>
+              </div>
+              <div class="dot-progress" id="dot-progress-checklist">
+                <div class="dot filled"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+              </div>
+              <div class="date-stamp">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span contenteditable="true" data-field="date">24 June 2026</span>
+              </div>
+            </div>
+            <div class="header-utils">
+              <button class="util-btn" title="Edit" data-action-btn="edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+              </button>
+              <button class="util-btn" title="Delete" data-action-btn="delete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="alert-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+            <span contenteditable="true" data-field="alertText">A productive day of learning and building.</span>
+          </div>
+
+          <div class="checklist-box" id="checklist-box"></div>
+          <button class="add-task-btn" id="add-task-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add new task
+          </button>
+
+          <div class="metric-row" id="metric-row-checklist">
+            <div class="metric-box" data-metric="streak">
+              <div class="metric-top">
+                <svg class="metric-icon-sm flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                <div class="metric-label">STREAK</div>
+              </div>
+              <div class="metric-value" contenteditable="true" data-field="streakValue">24</div>
+              <div class="metric-sub">days</div>
+            </div>
+            <div class="metric-box" data-metric="focus">
+              <div class="metric-top">
+                <svg class="metric-icon-sm clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <div class="metric-label">FOCUS TIME</div>
+              </div>
+              <div class="metric-value-group">
+                <span class="val" contenteditable="true" data-field="focusHours">5</span><span class="unit">h</span><span class="val" contenteditable="true" data-field="focusMinutes">25</span><span class="unit">m</span>
+              </div>
+              <div class="metric-sub">today</div>
+            </div>
+            <div class="metric-box" data-metric="tasks">
+              <div class="metric-top">
+                <svg class="metric-icon-sm check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>
+                <div class="metric-label">TASKS DONE</div>
+              </div>
+              <div class="metric-value green" data-field="tasksDoneValue">3</div>
+              <div class="metric-sub">today</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ===== SNAPSHOTS CARD ===== -->
+        <article class="card card-snapshots" id="card-snapshots" data-glow="on" data-cardbg="dots">
+          <div class="card-bg-pattern"></div>
+          <div class="card-header">
+            <div class="avatar" id="avatar-snap" title="Click to upload photo">
+              <div class="avatar-placeholder" id="avatar-placeholder-snap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                <span>Click to<br>upload photo</span>
+              </div>
+              <img id="avatar-img-snap" style="display:none;width:100%;height:100%;object-fit:cover;" alt="profile" />
+              <input type="file" accept="image/*" class="avatar-input" id="avatar-input-snap" />
+              <div class="avatar-overlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+              </div>
+            </div>
+            <div class="header-info" data-show="day">
+              <div class="day-row">
+                <span style="font-size:24px;font-weight:800;">Day&nbsp;</span>
+                <span class="day-current" contenteditable="true" data-field="dayCurrent">24</span>
+                <span class="day-label-static">/</span>
+                <span class="day-total" contenteditable="true" data-field="dayTotal">100</span>
+              </div>
+              <div class="dot-progress" id="dot-progress-snap">
+                <div class="dot filled"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              </div>
+              <div class="date-stamp-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span contenteditable="true" data-field="date">24 June 2026</span>
+              </div>
+            </div>
+            <div class="header-utils">
+              <button class="util-btn" title="Edit" data-action-btn="edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg></button>
+              <button class="util-btn" title="Delete" data-action-btn="delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+            </div>
+          </div>
+
+          <!-- NEW: Snapshot photo upload — sits between header and the snapshot panels -->
+          <div class="snap-photo-wrap" id="snap-photo-wrap" title="Click to upload photo">
+            <div class="snap-photo-placeholder" id="snap-photo-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>Click to upload a snapshot photo</span>
+            </div>
+            <img id="snap-photo-img" style="display:none;" alt="snapshot" />
+            <input type="file" accept="image/*" class="snap-photo-input" id="snap-photo-input" />
+            <div class="snap-photo-overlay">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+              <span id="snap-photo-overlay-text">Upload photo</span>
+            </div>
+          </div>
+
+          <!-- Scrollable snapshots -->
+          <div class="snapshot-scroll">
+            <div class="snap-panel">
+              <div class="panel-dots"><span></span><span></span><span></span></div>
+              <pre class="code-mock" contenteditable="true" data-field="codeBlock1"><span class="c-kw">const</span> <span class="c-fn">Card</span> = () => {
+  <span class="c-kw">return</span> (
+    &lt;<span class="c-fn">div</span>&gt;
+      &lt;<span class="c-fn">h1</span>&gt;Hello World&lt;/<span class="c-fn">h1</span>&gt;
+    &lt;/<span class="c-fn">div</span>&gt;
+  );
+}</pre>
+            </div>
+            <div class="progress-panel">
+              <div class="ring-wrap">
+                <svg class="ring-svg" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" class="ring-bg"/>
+                  <circle cx="50" cy="50" r="40" class="ring-fg" id="ring-fg-snap" style="stroke:var(--accent);stroke-dashoffset:63;"/>
+                </svg>
+                <div class="ring-label" contenteditable="true" data-field="ringPercent" id="ring-label-snap">75%</div>
+              </div>
+              <div class="progress-name" contenteditable="true" data-field="progressName">Project Alpha</div>
+            </div>
+            <div class="snap-panel">
+              <div class="panel-dots"><span></span><span></span><span></span></div>
+              <pre class="code-mock" contenteditable="true" data-field="codeBlock2"><span class="c-kw">import</span> csv
+
+<span class="c-kw">class</span> <span class="c-fn">Writer</span>:
+  <span class="c-kw">def</span> <span class="c-fn">save</span>(self, d):
+    csv.<span class="c-fn">writer</span>(
+      self.f
+    ).<span class="c-fn">writerows</span>(d)</pre>
+            </div>
+          </div>
+
+          <!-- Metrics -->
+          <div class="metric-row" id="metric-row-snap">
+            <div class="metric-box" data-metric="streak">
+              <div class="metric-top">
+                <svg class="metric-icon-sm flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                <div class="metric-label">STREAK</div>
+              </div>
+              <div class="metric-value" contenteditable="true" data-field="streakValue">24</div>
+              <div class="metric-sub">days</div>
+            </div>
+            <div class="metric-box" data-metric="focus">
+              <div class="metric-top">
+                <svg class="metric-icon-sm clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <div class="metric-label">FOCUS TIME</div>
+              </div>
+              <div class="metric-value-group">
+                <span class="val" contenteditable="true" data-field="focusHours">5</span><span class="unit">h</span><span class="val" contenteditable="true" data-field="focusMinutes">25</span><span class="unit">m</span>
+              </div>
+              <div class="metric-sub">today</div>
+            </div>
+            <div class="metric-box" data-metric="extra">
+              <div class="metric-top">
+                <svg class="metric-icon-sm target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+                <div class="metric-label">FOCUS %</div>
+              </div>
+              <div class="metric-value green" contenteditable="true" data-field="extraValue">85</div>
+              <div class="metric-sub" style="color:#4ade80">%</div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="footer-strip">
+            <div class="footer-strip-left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 5 5.5.8-4 4 1 5.5L12 15l-5 2.3 1-5.5-4-4 5.5-.8z"/></svg>
+              <span contenteditable="true" data-field="footerQuote">Discipline today, freedom tomorrow.</span>
+            </div>
+            <svg class="mountain-badge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19l5-9 4 5 3-5 6 9z"/></svg>
+          </div>
+        </article>
+
+        <!-- ACTION TRAY -->
+        <footer class="action-tray">
+          <button class="tray-btn" data-action="png">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>PNG</span>
+          </button>
+          <div class="tray-sep"></div>
+          <button class="tray-btn" data-action="jpg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>JPG</span>
+          </button>
+          <div class="tray-sep"></div>
+          <button class="tray-btn" data-action="download">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Card</span>
+          </button>
+          <div class="tray-sep"></div>
+          <button class="tray-btn" data-action="copy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy</span>
+          </button>
+          <div class="tray-sep"></div>
+          <button class="tray-btn" data-action="share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
+            <span>Share</span>
+          </button>
+        </footer>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Share modal -->
+<div class="modal-overlay" id="share-modal-overlay">
+  <div class="modal">
+    <h3>Share this card</h3>
+    <p>Wanna share your "dayCard" via Link.</p>
+    <div class="modal-link-row">
+      <input type="text" id="share-link-input" readonly />
+      <button id="copy-link-btn">Copy</button>
+    </div>
+    <button class="modal-close" id="modal-close-btn">Close</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const DEFAULT_STATE = {
+  layout: 'compact',
+  theme: 'violet',
+  background: 'dots',
+  accent: '#8b5cf6',
+  borderStyle: 'gradient',
+  radius: 16,
+  sidebarOpen: true,
+  options: { day: true, streak: true, focus: true, tasks: true, extra: true },
+  fields: {
+    dayCurrent: '24', dayTotal: '100',
+    date: '24 June 2026',
+    quote: "It's been a long day of coding. Started understanding complex React state patterns and implemented a new UI component. Progress feels slow but steady.",
+    streakValue: '24', focusHours: '5', focusMinutes: '25',
+    extraValue: '85', tasksDoneValue: '3',
+    footerQuote: 'Discipline today, freedom tomorrow.',
+    alertText: 'A productive day of learning and building.',
+    progressName: 'Project Alpha',
+    ringPercent: '75%',
+  },
+  tasks: [
+    { id: 't1', text: 'Complete React component', checked: false },
+    { id: 't2', text: 'Finish DSA practice', checked: true },
+    { id: 't3', text: 'Push code to GitHub', checked: false },
+    { id: 't4', text: 'Read 10 pages', checked: true },
+    { id: 't5', text: 'Workout', checked: false },
+  ],
+  avatarSrc: null,
+  snapPhotoSrc: null,
+  codeBlocks: { codeBlock1: null, codeBlock2: null }
+};
+
+let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+let undoStack = [], redoStack = [], historySuppressed = false;
+
+function snap() { return JSON.parse(JSON.stringify(state)); }
+function pushHistory() { if (historySuppressed) return; undoStack.push(snap()); if (undoStack.length > 50) undoStack.shift(); redoStack = []; updateUndoRedoBtns(); }
+function updateUndoRedoBtns() {
+  const u = document.getElementById('undo-btn'), r = document.getElementById('redo-btn');
+  if (u) u.disabled = undoStack.length === 0;
+  if (r) r.disabled = redoStack.length === 0;
+}
+
+function undo() { if (!undoStack.length) { showToast('Nothing to undo'); return; } redoStack.push(snap()); state = undoStack.pop(); historySuppressed = true; renderAll(); historySuppressed = false; updateUndoRedoBtns(); showToast('Undone'); }
+function redo() { if (!redoStack.length) { showToast('Nothing to redo'); return; } undoStack.push(snap()); state = redoStack.pop(); historySuppressed = true; renderAll(); historySuppressed = false; updateUndoRedoBtns(); showToast('Redone'); }
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast'); if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ============================================================
+// SIDEBAR TOGGLE (single function — works on desktop AND mobile)
+// ============================================================
+function isMobileViewport() { return window.innerWidth <= 768; }
+
+function setSidebarOpen(open) {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const hamburgerIcon = document.querySelector('#hamburger-btn svg');
+  if (!sidebar) return;
+
+  state.sidebarOpen = open;
+
+  if (isMobileViewport()) {
+    // Mobile: slide in/out with translateX, show dark overlay behind it
+    sidebar.classList.remove('collapsed');
+    sidebar.classList.toggle('open', open);
+    if (overlay) {
+      if (open) { overlay.style.display = 'block'; requestAnimationFrame(() => overlay.classList.add('open')); }
+      else { overlay.classList.remove('open'); setTimeout(() => { if (!overlay.classList.contains('open')) overlay.style.display = 'none'; }, 280); }
+    }
+  } else {
+    // Desktop: collapse width to 0 instead of translating off-screen,
+    // so main content expands smoothly and the card stays centered.
+    sidebar.classList.remove('open');
+    sidebar.classList.toggle('collapsed', !open);
+    if (overlay) { overlay.classList.remove('open'); overlay.style.display = 'none'; }
+  }
+
+  if (hamburgerIcon) hamburgerIcon.style.transform = open ? 'rotate(0deg)' : 'rotate(90deg)';
+}
+
+function toggleSidebar() { setSidebarOpen(!state.sidebarOpen); }
+
+// Keep sidebar state correct when crossing the desktop/mobile breakpoint,
+// e.g. resizing the window or rotating a device. Avoids glitches where
+// a mobile "open" class (translateX) would otherwise linger on desktop or vice versa.
+let lastViewportWasMobile = isMobileViewport();
+function handleViewportChange() {
+  const nowMobile = isMobileViewport();
+  if (nowMobile === lastViewportWasMobile) return;
+  lastViewportWasMobile = nowMobile;
+  if (nowMobile) {
+    // Entering mobile: sidebar should start closed regardless of desktop state
+    setSidebarOpen(false);
+  } else {
+    // Entering desktop: sidebar should default back to open
+    setSidebarOpen(true);
+  }
+}
+
+// ============================================================
+// LAYOUT
+// ============================================================
+function setLayout(layout) { pushHistory(); state.layout = layout; applyLayout(); document.querySelectorAll('.layout-card').forEach(b => b.classList.toggle('active', b.dataset.layout === layout)); }
+function applyLayout() {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+  const map = { compact: 'card-compact', checklist: 'card-checklist', snapshots: 'card-snapshots' };
+  const el = document.getElementById(map[state.layout]);
+  if (el) el.classList.add('active');
+}
+
+// ============================================================
+// THEME / BG / ACCENT / BORDER / RADIUS
+// ============================================================
+const THEME_GRADIENTS = {
+  violet: 'linear-gradient(135deg,#8b5cf6,#6366f1)',
+};
+
+function setTheme(theme) { pushHistory(); state.theme = theme; applyTheme(); document.querySelectorAll('.theme-swatch').forEach(s => s.classList.toggle('active', s.dataset.theme === theme)); }
+function applyTheme() {
+  const g = THEME_GRADIENTS[state.theme] || THEME_GRADIENTS.violet;
+  let st = document.getElementById('dynamic-theme-style');
+  if (!st) { st = document.createElement('style'); st.id = 'dynamic-theme-style'; document.head.appendChild(st); }
+  st.textContent = `.card::before { background: ${g}; }`;
+}
+
+function setBackground(bg) {
+  pushHistory(); state.background = bg; applyBackground();
+  document.querySelectorAll('.bg-opt').forEach(b => b.classList.toggle('active', b.dataset.bg === bg));
+}
+function applyBackground() {
+  // Apply to CARD, not canvas
+  document.querySelectorAll('.card').forEach(card => { card.dataset.cardbg = state.background; });
+}
+
+function setAccent(color) {
+  pushHistory(); state.accent = color; applyAccent();
+  document.querySelectorAll('.accent-swatch[data-accent]').forEach(s => {
+    const match = s.dataset.accent === color; s.classList.toggle('active', match);
+    s.innerHTML = match ? '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '';
+  });
+}
+function applyAccent() {
+  document.documentElement.style.setProperty('--accent', state.accent);
+  const hex = state.accent.replace('#','');
+  if (hex.length === 6) {
+    const r=parseInt(hex.substring(0,2),16),g=parseInt(hex.substring(2,4),16),b=parseInt(hex.substring(4,6),16);
+    document.documentElement.style.setProperty('--accent-rgb',`${r},${g},${b}`);
+  }
+  const ringFg = document.getElementById('ring-fg-snap');
+  if (ringFg) ringFg.style.stroke = state.accent;
+}
+
+function setBorder(style) {
+  state.borderStyle = style;
+  applyBorder();
+  document.querySelectorAll('.accent-swatch[data-border]').forEach(s => {
+    const match = s.dataset.border === style; s.classList.toggle('active', match);
+    s.innerHTML = match ? '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '';
+  });
+}
+function applyBorder() {
+  let st = document.getElementById('dynamic-border-style');
+  if (!st) { st = document.createElement('style'); st.id = 'dynamic-border-style'; document.head.appendChild(st); }
+  if (state.borderStyle === 'gradient') {
+    const g = THEME_GRADIENTS[state.theme] || THEME_GRADIENTS.violet;
+    st.textContent = `.card::before{background:black;
+    opacity:1;
+}
+`;
+  } else {
+    st.textContent = `.card::before { background: ${state.borderStyle}; opacity: 0.85; }`;
+  }
+}
+
+function setRadius(val) { state.radius = val; document.documentElement.style.setProperty('--radius', val+'px'); const el = document.getElementById('radius-value'); if (el) el.textContent = val+'px'; }
+
+// ============================================================
+// OPTIONS
+// ============================================================
+function setOption(key, val) { pushHistory(); state.options[key] = val; applyOptions(); }
+function applyOptions() {
+  const o = state.options;
+  document.querySelectorAll('[data-show="day"]').forEach(el => el.style.display = o.day ? '' : 'none');
+  updateMetricRow('metric-row-compact', ['streak','focus','extra']);
+  updateMetricRow('metric-row-checklist', ['streak','focus','tasks']);
+  updateMetricRow('metric-row-snap', ['streak','focus','extra']);
+}
+function updateMetricRow(rowId, keys) {
+  const row = document.getElementById(rowId); if (!row) return;
+  let count = 0;
+  keys.forEach(k => {
+    const box = row.querySelector(`[data-metric="${k}"]`); if (!box) return;
+    const vis = !!state.options[k]; box.classList.toggle('hidden', !vis); if (vis) count++;
+  });
+  row.dataset.count = count || 1;
+}
+
+// ============================================================
+// DOT PROGRESS
+// ============================================================
+function updateDotProgress() {
+  const cur = parseInt(state.fields.dayCurrent) || 0;
+  const tot = parseInt(state.fields.dayTotal) || 100;
+  const filled = Math.ceil((cur / tot) * 4);
+  ['dot-progress-compact','dot-progress-checklist','dot-progress-snap'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    el.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('filled', i < filled));
+  });
+}
+
+// ============================================================
+// FIELD SYNC
+// ============================================================
+function bindEditableFields() {
+  document.querySelectorAll('[contenteditable="true"][data-field]').forEach(el => {
+    // Skip the progress ring percentage and code blocks — handled separately below
+    if (el.dataset.field === 'ringPercent' || el.dataset.field === 'codeBlock1' || el.dataset.field === 'codeBlock2') return;
+    el.addEventListener('focus', () => { el._before = snap(); });
+    el.addEventListener('blur', () => {
+      const field = el.dataset.field, val = el.textContent.trim();
+      if (state.fields[field] !== val) {
+        if (el._before) { undoStack.push(el._before); if (undoStack.length>50) undoStack.shift(); redoStack = []; updateUndoRedoBtns(); }
+        state.fields[field] = val;
+        syncField(field, val);
+        if (field === 'dayCurrent' || field === 'dayTotal') updateDotProgress();
+      }
+    });
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' && !el.classList.contains('blockquote-text')) { e.preventDefault(); el.blur(); } });
+  });
+
+  // Progress ring % — editable, also drives the ring's visual fill
+  const ringLabel = document.getElementById('ring-label-snap');
+  if (ringLabel) {
+    ringLabel.addEventListener('focus', () => { ringLabel._before = snap(); });
+    ringLabel.addEventListener('blur', () => {
+      let val = ringLabel.textContent.trim();
+      let num = parseInt(val.replace(/[^0-9]/g,'')) || 0;
+      num = Math.max(0, Math.min(100, num));
+      val = num + '%';
+      if (state.fields.ringPercent !== val) {
+        if (ringLabel._before) { undoStack.push(ringLabel._before); redoStack = []; updateUndoRedoBtns(); }
+        state.fields.ringPercent = val;
+      }
+      ringLabel.textContent = val;
+      applyRingPercent();
+    });
+    ringLabel.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); ringLabel.blur(); } });
+  }
+
+  // Snapshot code blocks — editable, preserve as plain text once edited
+  ['codeBlock1','codeBlock2'].forEach(field => {
+    const el = document.querySelector(`[data-field="${field}"]`);
+    if (!el) return;
+    el.addEventListener('focus', () => { el._before = snap(); });
+    el.addEventListener('blur', () => {
+      const val = el.textContent;
+      if (state.codeBlocks[field] !== val) {
+        if (el._before) { undoStack.push(el._before); redoStack = []; updateUndoRedoBtns(); }
+        state.codeBlocks[field] = val;
+      }
+    });
+  });
+}
+
+function applyRingPercent() {
+  const num = parseInt((state.fields.ringPercent || '75%').replace(/[^0-9]/g,'')) || 0;
+  const ringFg = document.getElementById('ring-fg-snap');
+  if (ringFg) {
+    const circumference = 251.2; // 2 * PI * 40
+    const offset = circumference - (circumference * num / 100);
+    ringFg.style.strokeDashoffset = offset;
+  }
+}
+
+function syncField(field, val) {
+  document.querySelectorAll(`[data-field="${field}"]`).forEach(el => {
+    if (el.getAttribute('contenteditable') === 'true') { if (el.textContent !== val) el.textContent = val; }
+    else el.textContent = val;
+  });
+}
+
+function applyFields() {
+  Object.entries(state.fields).forEach(([k,v]) => syncField(k,v));
+  updateDotProgress();
+  applyRingPercent();
+  // Restore any edited code blocks as plain text (overrides the default syntax-highlighted markup)
+  Object.entries(state.codeBlocks).forEach(([field, val]) => {
+    if (val !== null && val !== undefined) {
+      const el = document.querySelector(`[data-field="${field}"]`);
+      if (el && el.textContent !== val) el.textContent = val;
+    }
+  });
+}
+
+// ============================================================
+// AVATAR (profile photo — Compact / Checklist / Snapshots header)
+// ============================================================
+function bindAvatarUploads() {
+  document.querySelectorAll('.avatar-input').forEach(input => {
+    input.addEventListener('change', e => {
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        pushHistory();
+        state.avatarSrc = ev.target.result;
+        applyAvatar();
+        showToast('Profile image updated ✓');
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+}
+
+function applyAvatar() {
+  if (!state.avatarSrc) return;
+  ['compact','checklist','snap'].forEach(id => {
+    const img = document.getElementById(`avatar-img-${id}`);
+    const ph = document.getElementById(`avatar-placeholder-${id}`);
+    if (img) { img.src = state.avatarSrc; img.style.display = 'block'; }
+    if (ph) ph.style.display = 'none';
+  });
+}
+
+// ============================================================
+// SNAPSHOT PHOTO (new — Snapshots layout only, sits between header and panels)
+// ============================================================
+function bindSnapPhotoUpload() {
+  const input = document.getElementById('snap-photo-input');
+  if (!input) return;
+  input.addEventListener('change', e => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      pushHistory();
+      state.snapPhotoSrc = ev.target.result;
+      applySnapPhoto();
+      showToast('Snapshot photo updated ✓');
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function applySnapPhoto() {
+  const wrap = document.getElementById('snap-photo-wrap');
+  const img = document.getElementById('snap-photo-img');
+  const ph = document.getElementById('snap-photo-placeholder');
+  const overlayText = document.getElementById('snap-photo-overlay-text');
+  if (!wrap || !img || !ph) return;
+  if (state.snapPhotoSrc) {
+    img.src = state.snapPhotoSrc; img.style.display = 'block';
+    ph.style.display = 'none';
+    wrap.classList.add('has-image');
+    if (overlayText) overlayText.textContent = 'Replace photo';
+  } else {
+    img.style.display = 'none';
+    ph.style.display = 'flex';
+    wrap.classList.remove('has-image');
+    if (overlayText) overlayText.textContent = 'Upload photo';
+  }
+}
+
+// ============================================================
+// CHECKLIST
+// ============================================================
+function renderChecklist() {
+  const box = document.getElementById('checklist-box'); if (!box) return;
+  box.innerHTML = '';
+  state.tasks.forEach(task => {
+    const row = document.createElement('div');
+    row.className = 'checklist-item' + (task.checked ? ' checked' : '');
+    row.dataset.id = task.id;
+
+    const toggle = document.createElement('button');
+    toggle.className = 'check-toggle';
+    toggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    toggle.addEventListener('click', () => toggleTask(task.id));
+
+    const text = document.createElement('div');
+    text.className = 'checklist-item-text';
+    text.contentEditable = 'true';
+    text.textContent = task.text;
+    text.addEventListener('focus', () => text._before = snap());
+    text.addEventListener('blur', () => {
+      const v = text.textContent.trim();
+      if (v !== task.text) { if (text._before) { undoStack.push(text._before); redoStack = []; updateUndoRedoBtns(); } task.text = v; }
+    });
+    text.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); text.blur(); } });
+
+    const del = document.createElement('button');
+    del.className = 'task-delete';
+    del.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    del.addEventListener('click', () => deleteTask(task.id));
+
+    row.appendChild(toggle); row.appendChild(text); row.appendChild(del);
+    box.appendChild(row);
+  });
+  updateTaskCount();
+}
+
+function toggleTask(id) { pushHistory(); const t = state.tasks.find(x => x.id === id); if (t) t.checked = !t.checked; renderChecklist(); }
+function deleteTask(id) { pushHistory(); state.tasks = state.tasks.filter(x => x.id !== id); renderChecklist(); }
+function addTask() {
+  pushHistory(); const id = 't' + Date.now();
+  state.tasks.push({ id, text: 'New task', checked: false }); renderChecklist();
+  requestAnimationFrame(() => {
+    const el = document.querySelector(`.checklist-item[data-id="${id}"] .checklist-item-text`);
+    if (el) { const r = document.createRange(); r.selectNodeContents(el); const s = window.getSelection(); s.removeAllRanges(); s.addRange(r); el.focus(); }
+  });
+}
+function updateTaskCount() {
+  const done = state.tasks.filter(t => t.checked).length;
+  state.fields.tasksDoneValue = String(done); syncField('tasksDoneValue', String(done));
+}
+
+// ============================================================
+// HEADER UTIL BUTTONS (Edit / Delete) — wired for all three layouts
+// ============================================================
+function bindHeaderUtilButtons() {
+  document.querySelectorAll('[data-action-btn="edit"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.card'); if (!card) return;
+      const target = card.querySelector('[data-field="dayCurrent"]') || card.querySelector('.blockquote-text');
+      if (target) {
+        target.focus();
+        const r = document.createRange(); r.selectNodeContents(target);
+        const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      }
+      showToast('Click any value to edit it');
+    });
+  });
+  document.querySelectorAll('[data-action-btn="delete"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      pushHistory();
+      state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+      renderAll();
+      showToast('Card reset to defaults');
+    });
+  });
+}
+
+// ============================================================
+// CAT
+// ============================================================
+let catPos = 30, catDir = 1, catPaused = false, catInterval = null;
+function startCat() {
+  const cat = document.getElementById('cat'); if (!cat) return;
+  if (catInterval) clearInterval(catInterval);
+  catInterval = setInterval(() => {
+    if (catPaused) return;
+    catPos += catDir * 0.3;
+    if (catPos >= 85) { catPos = 85; catDir = -1; cat.classList.add('flipped'); }
+    else if (catPos <= 2) { catPos = 2; catDir = 1; cat.classList.remove('flipped'); }
+    cat.style.left = catPos + '%';
+  }, 40);
+  cat.addEventListener('dblclick', () => {
+    catPaused = true; cat.classList.remove('jump');
+    requestAnimationFrame(() => cat.classList.add('jump'));
+    const bubble = document.getElementById('meow-bubble');
+    if (bubble) { bubble.classList.remove('show'); requestAnimationFrame(() => bubble.classList.add('show')); }
+    setTimeout(() => { cat.classList.remove('jump'); if (bubble) bubble.classList.remove('show'); catPaused = false; }, 1500);
+  });
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function getActiveCard() { return document.querySelector('.card.active'); }
+
+async function exportImg(format) {
+  const el = getActiveCard();
+  if (!el || typeof html2canvas === 'undefined') { showToast('Export unavailable'); return null; }
+  return await html2canvas(el, { backgroundColor: '#0f0f14', scale: 2, useCORS: true, logging: false });
+}
+
+async function downloadCard(format) {
+  showToast('Generating…');
+  try {
+    const canvas = await exportImg(format); if (!canvas) return;
+    const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
+    const link = document.createElement('a');
+    link.download = `day-card-${state.fields.dayCurrent}.${format}`;
+    link.href = canvas.toDataURL(mime, 0.95);
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    showToast(`Downloaded ${format.toUpperCase()} ✓`);
+  } catch(e) { console.error(e); showToast('Export failed'); }
+}
+
+async function copyCard() {
+  showToast('Copying…');
+  try {
+    const canvas = await exportImg('png'); if (!canvas) return;
+    canvas.toBlob(async blob => {
+      try { await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]); showToast('Copied to clipboard ✓'); }
+      catch { showToast('Clipboard not supported here'); }
+    }, 'image/png');
+  } catch(e) { showToast('Copy failed'); }
+}
+
+// Share link now encodes the FULL card state (including day number) into the URL hash,
+// and the displayed link itself reflects the current day, e.g. ?day=24 in the path-style preview.
+function buildShareLink() {
+  const day = state.fields.dayCurrent || '0';
+  const encoded = btoa(encodeURIComponent(JSON.stringify(state)));
+  return `${location.origin}${location.pathname}?day=${encodeURIComponent(day)}#${encoded}`;
+}
+
+function openShare() {
+  const overlay = document.getElementById('share-modal-overlay');
+  const input = document.getElementById('share-link-input');
+  if (!overlay || !input) return;
+  input.value = buildShareLink();
+  overlay.classList.add('open');
+}
+
+// If the page is loaded with a #<encoded state> hash (i.e. someone opened a shared link),
+// restore that state automatically — including the day number used to build the link.
+function loadSharedStateFromHash() {
+  if (!location.hash || location.hash.length < 2) return false;
+  try {
+    const json = decodeURIComponent(atob(location.hash.slice(1)));
+    const shared = JSON.parse(json);
+    if (shared && typeof shared === 'object' && shared.fields) {
+      state = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), shared);
+      return true;
+    }
+  } catch (e) { /* malformed hash — ignore and fall back to defaults */ }
+  return false;
+}
+
+function handleExportAction(action) {
+  switch (action) {
+    case 'png': downloadCard('png'); break;
+    case 'jpg': downloadCard('jpg'); break;
+    case 'download': downloadCard('png'); break;
+    case 'copy': copyCard(); break;
+    case 'share': openShare(); break;
+  }
+}
+
+// ============================================================
+// RENDER ALL
+// ============================================================
+function renderAll() {
+  applyLayout();
+  document.querySelectorAll('.layout-card').forEach(b => b.classList.toggle('active', b.dataset.layout === state.layout));
+  applyTheme();
+  document.querySelectorAll('.theme-swatch').forEach(s => s.classList.toggle('active', s.dataset.theme === state.theme));
+  applyBackground();
+  document.querySelectorAll('.bg-opt').forEach(b => b.classList.toggle('active', b.dataset.bg === state.background));
+  applyAccent();
+  document.querySelectorAll('.accent-swatch[data-accent]').forEach(s => {
+    const match = s.dataset.accent === state.accent; s.classList.toggle('active', match);
+    s.innerHTML = match ? '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '';
+  });
+  applyBorder();
+  const rs = document.getElementById('radius-slider'); if (rs) rs.value = state.radius;
+  setRadius(state.radius);
+  document.querySelectorAll('.opt-toggle').forEach(inp => inp.checked = state.options[inp.dataset.target]);
+  applyOptions();
+  applyFields();
+  renderChecklist();
+  applyAvatar();
+  applySnapPhoto();
+  updateUndoRedoBtns();
+  updateDotProgress();
+}
+
+// ============================================================
+// SIDEBAR TABS
+// ============================================================
+function wireTabs() {
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const name = tab.dataset.tab;
+      document.querySelectorAll('.panel-section').forEach(p => p.classList.add('hidden'));
+      const panel = document.getElementById('panel-' + name);
+      if (panel) panel.classList.remove('hidden');
+    });
+  });
+}
+
+// ============================================================
+// INIT & WIRE
+// ============================================================
+function init() {
+  // Restore a shared card from the URL hash, if present
+  loadSharedStateFromHash();
+
+  // Tabs
+  wireTabs();
+
+  // Hamburger sidebar — ONE toggle function for both desktop & mobile
+  document.getElementById('hamburger-btn')?.addEventListener('click', toggleSidebar);
+  document.getElementById('sidebar-overlay')?.addEventListener('click', () => setSidebarOpen(false));
+
+  // Layout buttons
+  document.querySelectorAll('.layout-card').forEach(b => b.addEventListener('click', () => setLayout(b.dataset.layout)));
+
+  // Theme swatches
+  document.querySelectorAll('.theme-swatch').forEach(b => b.addEventListener('click', () => setTheme(b.dataset.theme)));
+  document.getElementById('add-theme-btn')?.addEventListener('click', () => showToast('Custom gradient builder coming soon'));
+
+  // Background options
+  document.querySelectorAll('.bg-opt').forEach(b => b.addEventListener('click', () => setBackground(b.dataset.bg)));
+
+  // Accent swatches
+  document.querySelectorAll('.accent-swatch[data-accent]').forEach(b => b.addEventListener('click', () => setAccent(b.dataset.accent)));
+  document.getElementById('custom-accent-input')?.addEventListener('input', e => setAccent(e.target.value));
+
+  // Border swatches
+  document.querySelectorAll('.accent-swatch[data-border]').forEach(b => b.addEventListener('click', () => setBorder(b.dataset.border)));
+
+  // Radius slider
+  const rs = document.getElementById('radius-slider');
+  if (rs) { rs.addEventListener('input', e => setRadius(parseInt(e.target.value))); rs.addEventListener('change', () => pushHistory()); }
+
+  // Toggles
+  document.querySelectorAll('.opt-toggle').forEach(inp => inp.addEventListener('change', e => setOption(e.target.dataset.target, e.target.checked)));
+
+  // Reset
+  document.getElementById('reset-all-btn')?.addEventListener('click', () => { pushHistory(); state = JSON.parse(JSON.stringify(DEFAULT_STATE)); renderAll(); showToast('Reset to defaults'); });
+
+  // Navbar
+  document.getElementById('undo-btn')?.addEventListener('click', undo);
+  document.getElementById('redo-btn')?.addEventListener('click', redo);
+  document.getElementById('preview-btn')?.addEventListener('click', () => { document.body.classList.toggle('preview-mode'); showToast(document.body.classList.contains('preview-mode') ? 'Preview mode on' : 'Preview mode off'); });
+  document.getElementById('export-top-btn')?.addEventListener('click', () => downloadCard('png'));
+
+  // Tray buttons
+  document.querySelectorAll('.tray-btn').forEach(b => b.addEventListener('click', () => handleExportAction(b.dataset.action)));
+
+  // Header util buttons (Edit / Delete) — present on all three layouts
+  bindHeaderUtilButtons();
+
+  // Share modal
+  document.getElementById('modal-close-btn')?.addEventListener('click', () => document.getElementById('share-modal-overlay')?.classList.remove('open'));
+  document.getElementById('share-modal-overlay')?.addEventListener('click', e => { if (e.target.id === 'share-modal-overlay') e.target.classList.remove('open'); });
+  document.getElementById('copy-link-btn')?.addEventListener('click', async () => {
+    const inp = document.getElementById('share-link-input'); if (!inp) return;
+    try { await navigator.clipboard.writeText(inp.value); showToast('Link copied ✓'); } catch { inp.select(); showToast('Select & copy the link'); }
+  });
+
+  // Add task
+  document.getElementById('add-task-btn')?.addEventListener('click', addTask);
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    const mod = e.ctrlKey || e.metaKey;
+    if (!mod) return;
+    if (document.activeElement?.isContentEditable) return;
+    if (e.key.toLowerCase() === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+    else if ((e.key.toLowerCase() === 'z' && e.shiftKey) || e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
+  });
+
+  // Fields + avatar + snapshot photo
+  bindEditableFields();
+  bindAvatarUploads();
+  bindSnapPhotoUpload();
+
+  // Snapshot photo click-to-upload (the file input already covers the area,
+  // but this keeps clicking the placeholder/icon intuitive too)
+  document.getElementById('snap-photo-wrap')?.addEventListener('click', e => {
+    if (e.target.id === 'snap-photo-input') return; // let native input handle it
+  });
+
+  // Initial render
+  renderAll();
+  startCat();
+
+  // Sidebar: open by default on desktop, closed by default on mobile.
+  // Resizing across the breakpoint re-evaluates this automatically.
+  setSidebarOpen(!isMobileViewport());
+  window.addEventListener('resize', handleViewportChange);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
