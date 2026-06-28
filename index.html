@@ -354,7 +354,7 @@ background-color: white;
   background:black;
   -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
   -webkit-mask-composite:xor;mask-composite:exclude;
-  pointer-events:none;opacity:0.85;z-index:0;
+  pointer-events:none;opacity:0;z-index:0;
   transition:background 0.3s;
   border: #09090b;
 }
@@ -1399,11 +1399,11 @@ function applyBorder() {
   if (state.borderStyle === 'gradient') {
     const g = THEME_GRADIENTS[state.theme] || THEME_GRADIENTS.violet;
     st.textContent = `.card::before{background:black;
-    opacity:1;
+    opacity:0;
 }
 `;
   } else {
-    st.textContent = `.card::before { background: ${state.borderStyle}; opacity: 0.85; }`;
+    st.textContent = `.card::before { background: ${state.borderStyle}; opacity: 0; }`;
   }
 }
 
