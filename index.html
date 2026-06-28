@@ -1407,8 +1407,7 @@ function applyBorder() {
   }
 }
 
-function setRadius(val) { state.radius = val; document.documentElement.style.setProperty('--radius', val+'px'); const el = document.getElementById('radius-value'); if (el) el.textContent = val+'px'; }
-
+function setRadius(val) { state.radius = val; document.documentElement.style.setProperty('--radius', val+'px'); document.querySelectorAll('.card').forEach(c => c.style.borderRadius = val+'px'); const el = document.getElementById('radius-value'); if (el) el.textContent = val+'px'; }
 // ============================================================
 // OPTIONS
 // ============================================================
