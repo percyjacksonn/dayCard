@@ -331,7 +331,7 @@ background-color: white;
 .card{
   display:none;
   width:80%;
-  background:rgba(15,15,20,0.92);
+  background:rgba(15,15,20,0.75);
   backdrop-filter:none;
   border:1px solid rgba(255,255,255,0.08);
   border-radius:var(--radius);
@@ -1782,6 +1782,8 @@ function renderAll() {
   applyBackground();
   document.querySelectorAll('.bg-opt').forEach(b => b.classList.toggle('active', b.dataset.bg === state.background));
   applyAccent();
+
+document.querySelectorAll('.card').forEach(c => c.style.borderRadius = state.radius+'px');
   document.querySelectorAll('.accent-swatch[data-accent]').forEach(s => {
     const match = s.dataset.accent === state.accent; s.classList.toggle('active', match);
     s.innerHTML = match ? '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '';
