@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DayCard — design your progress</title>
+<link rel="icon" href="data:," />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ============ LEFT SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="brand-logo">D</div>
+        <div class="brand-text">
+          <div class="brand-title">DayCard</div>
+          <div class="brand-sub">Design your progress</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="tab-row">
+      <button class="tab active" data-tab="layout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Layout
+      </button>
+      <button class="tab" data-tab="theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18 5 5 0 0 1 0-10 4 4 0 0 0 0-8Z"/></svg>
+        Theme
+      </button>
+    </nav>
+
+    <div class="sidebar-scroll">
+
+      <!-- LAYOUTS PANEL -->
+      <section class="panel-section" id="panel-layout">
+        <div class="section-label">Layouts</div>
+        <div class="layout-row">
+          <button class="layout-card active" data-layout="compact">
+            <div class="layout-card-preview">
+              <div class="lp-line accent short"></div>
+              <div class="lp-line half"></div>
+              <div class="lp-line"></div>
+              <div class="lp-line"></div>
+              <div class="lp-line half"></div>
+              <div class="lp-sq"><span></span><span></span><span></span></div>
+            </div>
+            <span>Compact</span>
+          </button>
+          <button class="layout-card" data-layout="checklist">
+            <div class="layout-card-preview">
+              <div class="lp-line accent short"></div>
+              <div class="lp-line half"></div>
+              <div style="display:flex;gap:2px;margin-top:3px;"><div style="width:5px;height:5px;border-radius:1px;background:#2a2a30;flex-shrink:0;"></div><div class="lp-line" style="margin:0;flex:1;height:5px;"></div></div>
+              <div style="display:flex;gap:2px;margin-top:2px;"><div style="width:5px;height:5px;border-radius:1px;background:#7bbf8e;flex-shrink:0;"></div><div class="lp-line" style="margin:0;flex:1;height:5px;"></div></div>
+              <div style="display:flex;gap:2px;margin-top:2px;"><div style="width:5px;height:5px;border-radius:1px;background:#2a2a30;flex-shrink:0;"></div><div class="lp-line" style="margin:0;flex:1;height:5px;"></div></div>
+            </div>
+            <span>Checklist</span>
+          </button>
+          <button class="layout-card" data-layout="snapshots">
+            <span class="new-pill">NEW</span>
+            <div class="layout-card-preview">
+              <div class="lp-line accent short"></div>
+              <div class="lp-line half"></div>
+              <div style="display:flex;gap:2px;flex:1;margin-top:3px;">
+                <div style="flex:1;background:#1a1a1e;border-radius:2px;"></div>
+                <div style="flex:1;background:#1a1a1e;border-radius:2px;"></div>
+              </div>
+            </div>
+            <span>Snapshots</span>
+          </button>
+        </div>
+
+        <div class="section-label" style="margin-top:18px;">Card Options</div>
+        <div style="display:flex;flex-direction:column;">
+          <div class="toggle-row"><span>Show Day</span><label class="switch"><input type="checkbox" class="opt-toggle" data-target="day" checked /><span class="switch-slider"></span></label></div>
+          <div class="toggle-row"><span>Show Streak</span><label class="switch"><input type="checkbox" class="opt-toggle" data-target="streak" checked /><span class="switch-slider"></span></label></div>
+          <div class="toggle-row"><span>Show Focus Time</span><label class="switch"><input type="checkbox" class="opt-toggle" data-target="focus" checked /><span class="switch-slider"></span></label></div>
+          <div class="toggle-row"><span>Show Tasks Done<sub>(Checklist)</sub></span><label class="switch"><input type="checkbox" class="opt-toggle" data-target="tasks" checked /><span class="switch-slider"></span></label></div>
+          <div class="toggle-row"><span>Show Extra Stat</span><label class="switch"><input type="checkbox" class="opt-toggle" data-target="extra" checked /><span class="switch-slider"></span></label></div>
+        </div>
+      </section>
+
+      <!-- THEME PANEL -->
+      <section class="panel-section hidden" id="panel-theme">
+        <div class="section-label" style="margin-top:0">Theme</div>
+
+        <div class="section-label">Background (Card)</div>
+        <div class="bg-grid">
+          <button class="bg-opt active" data-bg="dots"><span class="bg-preview bg-preview-dots"></span><span>Dots</span></button>
+          <button class="bg-opt" data-bg="grid"><span class="bg-preview bg-preview-grid"></span><span>Grid</span></button>
+          <button class="bg-opt" data-bg="waves"><span class="bg-preview bg-preview-waves"></span><span>Waves</span></button>
+          <button class="bg-opt" data-bg="topography"><span class="bg-preview bg-preview-topo"></span><span>Topo</span></button>
+          <button class="bg-opt" data-bg="code"><span class="bg-preview bg-preview-code"></span><span>Code</span></button>
+          <button class="bg-opt" data-bg="none"><span class="bg-preview bg-preview-none"></span><span>None</span></button>
+        </div>
+
+        <div class="section-label">Accent Color</div>
+        <div class="swatch-row" id="accent-row">
+          <button class="accent-swatch active" data-accent="#d9a441" style="background:#d9a441">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1a1206" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+          <button class="accent-swatch" data-accent="#5c8ac4" style="background:#5c8ac4"></button>
+          <button class="accent-swatch" data-accent="#6fa37e" style="background:#6fa37e"></button>
+          <button class="accent-swatch" data-accent="#c2705a" style="background:#c2705a"></button>
+          <button class="accent-swatch" data-accent="#8d80c4" style="background:#8d80c4"></button>
+          <button class="accent-swatch" data-accent="#b9b9c4" style="background:#b9b9c4"></button>
+          <label class="accent-swatch custom-picker" title="Custom color">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-4 4-7 8-7 12a7 7 0 0 0 14 0c0-4-3-8-7-12Z"/></svg>
+            <input type="color" id="custom-accent-input" value="#d9a441" />
+          </label>
+        </div>
+
+        <div class="section-label">Border Radius <span id="radius-value">16px</span></div>
+        <input type="range" id="radius-slider" min="0" max="40" value="16" class="slider" />
+
+        <div class="section-label"></div>
+      </section>
+
+      <!-- STICKERS / TEXT = coming soon -->
+      <section class="panel-section hidden" id="panel-stickers">
+        <div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-dim);font-size:13px;border:1.5px dashed var(--border-color);border-radius:10px;margin-top:16px;">Coming soon</div>
+      </section>
+      <section class="panel-section hidden" id="panel-text">
+        <div style="display:flex;align-items:center;justify-content:center;height:100px;color:var(--text-dim);font-size:13px;border:1.5px dashed var(--border-color);border-radius:10px;margin-top:16px;">Coming soon</div>
+      </section>
+
+      <button class="reset-btn" id="reset-all-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>
+        Reset All
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN AREA ============ -->
+  <main class="main">
+
+    <!-- TOP NAVBAR -->
+    <header class="navbar">
+      <div class="navbar-left">
+        <button class="hamburger-btn" id="hamburger-btn" title="Toggle sidebar" aria-label="Toggle sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="navbar-right">
+        <a class="social-link x" title="X" target="_blank" rel="noopener" href="https://x.com/Percyjackgrace">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a class="social-link" title="Github" target="_blank" rel="noopener" href="https://github.com/percyjacksonn/">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55v-2.1c-3.2.7-3.87-1.36-3.87-1.36-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.24 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.42-2.69 5.4-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .3.21.66.79.55A10.52 10.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+        </a>
+      </div>
+    </header>
+
+    <!-- WORKSPACE -->
+    <section class="canvas" id="canvas" data-bg="dots">
+
+      <div class="card-stage" id="card-stage">
+        <!-- CAT -->
+        <div class="cat-wrap" id="cat">
+          <div class="meow-bubble" id="meow-bubble"></div>
+        </div>
+
+        <!-- ===== COMPACT CARD ===== -->
+        <article class="card card-compact active" id="card-compact" data-glow="on" data-cardbg="dots">
+          <div class="card-bg-pattern"></div>
+          <!-- Header -->
+          <div class="card-header">
+            <div class="avatar" id="avatar-compact" title="Click to upload photo">
+              <div class="avatar-placeholder" id="avatar-placeholder-compact">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>Click to<br>upload photo</span>
+              </div>
+              <img id="avatar-img-compact" style="display:none;width:100%;height:100%;object-fit:cover;" alt="profile" />
+              <input type="file" accept="image/*" class="avatar-input" id="avatar-input-compact" />
+              <div class="avatar-overlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+              </div>
+            </div>
+            <div class="header-info" data-show="day">
+              <div class="day-row">
+                <span style="font-size:24px;font-weight:400;font-family:var(--font);color:var(--text-muted);">Day&nbsp;</span>
+                <span class="day-current" contenteditable="true" data-field="dayCurrent">24</span>
+                <span class="day-label-static">/</span>
+                <span class="day-total" contenteditable="true" data-field="dayTotal">100</span>
+              </div>
+              <div class="dot-progress" id="dot-progress-compact">
+                <div class="dot filled"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+              </div>
+              <div class="date-stamp">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span contenteditable="true" data-field="date">24 June 2026</span>
+              </div>
+            </div>
+            <div class="header-utils">
+              <button class="util-btn" title="Edit" data-action-btn="edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+              </button>
+              <button class="util-btn" title="Delete" data-action-btn="delete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quote block -->
+          <div class="blockquote-box">
+            <svg class="quote-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M9.5 4C5.36 4 2 7.36 2 11.5c0 3.31 2.69 6 6 6 .55 0 1-.45 1-1s-.45-1-1-1c-2.21 0-4-1.79-4-4 0-.34.05-.66.13-.98C5.07 10.81 6.46 11.5 8 11.5c2.21 0 4-1.79 4-4S10.21 4 9.5 4zm10 0c-4.14 0-7.5 3.36-7.5 7.5 0 3.31 2.69 6 6 6 .55 0 1-.45 1-1s-.45-1-1-1c-2.21 0-4-1.79-4-4 0-.34.05-.66.13-.98.94 1.29 2.33 1.98 3.87 1.98 2.21 0 4-1.79 4-4S21.71 4 19.5 4z"/></svg>
+            <p class="blockquote-text" contenteditable="true" data-field="quote">It's been a long day of coding. Started understanding complex React state patterns and implemented a new UI component. Progress feels slow but steady.</p>
+          </div>
+
+          <!-- Metrics -->
+          <div class="metric-row" id="metric-row-compact">
+            <div class="metric-box" data-metric="streak">
+              <div class="metric-top">
+                <svg class="metric-icon-sm flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                <div class="metric-label">STREAK</div>
+              </div>
+              <div class="metric-value" contenteditable="true" data-field="streakValue">24</div>
+              <div class="metric-sub">days</div>
+            </div>
+            <div class="metric-box" data-metric="focus">
+              <div class="metric-top">
+                <svg class="metric-icon-sm clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <div class="metric-label">FOCUS TIME</div>
+              </div>
+              <div class="metric-value-group">
+                <span class="val" contenteditable="true" data-field="focusHours">5</span><span class="unit">h</span><span class="val" contenteditable="true" data-field="focusMinutes">25</span><span class="unit">m</span>
+              </div>
+              <div class="metric-sub">today</div>
+            </div>
+            <div class="metric-box" data-metric="extra">
+              <div class="metric-top">
+                <svg class="metric-icon-sm target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+                <div class="metric-label">FOCUS %</div>
+              </div>
+              <div class="metric-value green" contenteditable="true" data-field="extraValue">85</div>
+              <div class="metric-sub" style="color:#8fcd9e">%</div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="footer-strip">
+            <div class="footer-strip-left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 5 5.5.8-4 4 1 5.5L12 15l-5 2.3 1-5.5-4-4 5.5-.8z"/></svg>
+              <span contenteditable="true" data-field="footerQuote">Discipline today, freedom tomorrow.</span>
+            </div>
+            <svg class="mountain-badge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19l5-9 4 5 3-5 6 9z"/></svg>
+          </div>
+        </article>
+
+        <!-- ===== CHECKLIST CARD ===== -->
+        <article class="card card-checklist" id="card-checklist" data-glow="on" data-cardbg="dots">
+          <div class="card-bg-pattern"></div>
+          <div class="card-header">
+            <div class="avatar" id="avatar-checklist" title="Click to upload photo">
+              <div class="avatar-placeholder" id="avatar-placeholder-checklist">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                <span>Click to<br>upload photo</span>
+              </div>
+              <img id="avatar-img-checklist" style="display:none;width:100%;height:100%;object-fit:cover;" alt="profile" />
+              <input type="file" accept="image/*" class="avatar-input" id="avatar-input-checklist" />
+              <div class="avatar-overlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+              </div>
+            </div>
+            <div class="header-info" data-show="day">
+              <div class="day-row">
+                <span style="font-size:24px;font-weight:400;font-family:var(--font);color:var(--text-muted);">Day&nbsp;</span>
+                <span class="day-current" contenteditable="true" data-field="dayCurrent">24</span>
+                <span class="day-label-static">/</span>
+                <span class="day-total" contenteditable="true" data-field="dayTotal">100</span>
+              </div>
+              <div class="dot-progress" id="dot-progress-checklist">
+                <div class="dot filled"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+              </div>
+              <div class="date-stamp">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span contenteditable="true" data-field="date">24 June 2026</span>
+              </div>
+            </div>
+            <div class="header-utils">
+              <button class="util-btn" title="Edit" data-action-btn="edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+              </button>
+              <button class="util-btn" title="Delete" data-action-btn="delete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="alert-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+            <span contenteditable="true" data-field="alertText">A productive day of learning and building.</span>
+          </div>
+
+          <div class="checklist-box" id="checklist-box"></div>
+          <button class="add-task-btn" id="add-task-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add new task
+          </button>
+
+          <div class="metric-row" id="metric-row-checklist">
+            <div class="metric-box" data-metric="streak">
+              <div class="metric-top">
+                <svg class="metric-icon-sm flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                <div class="metric-label">STREAK</div>
+              </div>
+              <div class="metric-value" contenteditable="true" data-field="streakValue">24</div>
+              <div class="metric-sub">days</div>
+            </div>
+            <div class="metric-box" data-metric="focus">
+              <div class="metric-top">
+                <svg class="metric-icon-sm clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <div class="metric-label">FOCUS TIME</div>
+              </div>
+              <div class="metric-value-group">
+                <span class="val" contenteditable="true" data-field="focusHours">5</span><span class="unit">h</span><span class="val" contenteditable="true" data-field="focusMinutes">25</span><span class="unit">m</span>
+              </div>
+              <div class="metric-sub">today</div>
+            </div>
+            <div class="metric-box" data-metric="tasks">
+              <div class="metric-top">
+                <svg class="metric-icon-sm check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>
+                <div class="metric-label">TASKS DONE</div>
+              </div>
+              <div class="metric-value green" data-field="tasksDoneValue">3</div>
+              <div class="metric-sub">today</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ===== SNAPSHOTS CARD ===== -->
+        <article class="card card-snapshots" id="card-snapshots" data-glow="on" data-cardbg="dots">
+          <div class="card-bg-pattern"></div>
+          <div class="card-header">
+            <div class="avatar" id="avatar-snap" title="Click to upload photo">
+              <div class="avatar-placeholder" id="avatar-placeholder-snap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                <span>Click to<br>upload photo</span>
+              </div>
+              <img id="avatar-img-snap" style="display:none;width:100%;height:100%;object-fit:cover;" alt="profile" />
+              <input type="file" accept="image/*" class="avatar-input" id="avatar-input-snap" />
+              <div class="avatar-overlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+              </div>
+            </div>
+            <div class="header-info" data-show="day">
+              <div class="day-row">
+                <span style="font-size:24px;font-weight:400;font-family:var(--font);color:var(--text-muted);">Day&nbsp;</span>
+                <span class="day-current" contenteditable="true" data-field="dayCurrent">24</span>
+                <span class="day-label-static">/</span>
+                <span class="day-total" contenteditable="true" data-field="dayTotal">100</span>
+              </div>
+              <div class="dot-progress" id="dot-progress-snap">
+                <div class="dot filled"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              </div>
+              <div class="date-stamp-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span contenteditable="true" data-field="date">24 June 2026</span>
+              </div>
+            </div>
+            <div class="header-utils">
+              <button class="util-btn" title="Edit" data-action-btn="edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg></button>
+              <button class="util-btn" title="Delete" data-action-btn="delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+            </div>
+          </div>
+
+          <!-- Snapshot photo upload -->
+          <div class="snap-photo-wrap" id="snap-photo-wrap" title="Click to upload photo">
+            <div class="snap-photo-placeholder" id="snap-photo-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>Click to upload a snapshot photo</span>
+            </div>
+            <img id="snap-photo-img" style="display:none;" alt="snapshot" />
+            <input type="file" accept="image/*" class="snap-photo-input" id="snap-photo-input" />
+            <div class="snap-photo-overlay">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 1 1 3 3L12 15l-4 1 1-4Z"/></svg>
+              <span id="snap-photo-overlay-text">Upload photo</span>
+            </div>
+          </div>
+
+          <!-- Scrollable snapshots -->
+          <div class="snapshot-scroll">
+            <div class="snap-panel">
+              <div class="panel-dots"><span></span><span></span><span></span></div>
+              <pre class="code-mock" contenteditable="true" data-field="codeBlock1"><span class="c-kw">const</span> <span class="c-fn">Card</span> = () => {
+  <span class="c-kw">return</span> (
+    &lt;<span class="c-fn">div</span>&gt;
+      &lt;<span class="c-fn">h1</span>&gt;Hello World&lt;/<span class="c-fn">h1</span>&gt;
+    &lt;/<span class="c-fn">div</span>&gt;
+  );
+}</pre>
+            </div>
+            <div class="progress-panel">
+              <div class="ring-wrap">
+                <svg class="ring-svg" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" class="ring-bg"/>
+                  <circle cx="50" cy="50" r="40" class="ring-fg" id="ring-fg-snap" style="stroke:var(--accent);stroke-dashoffset:63;"/>
+                </svg>
+                <div class="ring-label" contenteditable="true" data-field="ringPercent" id="ring-label-snap">75%</div>
+              </div>
+              <div class="progress-name" contenteditable="true" data-field="progressName">Project Alpha</div>
+            </div>
+            <div class="snap-panel">
+              <div class="panel-dots"><span></span><span></span><span></span></div>
+              <pre class="code-mock" contenteditable="true" data-field="codeBlock2"><span class="c-kw">import</span> csv
+
+<span class="c-kw">class</span> <span class="c-fn">Writer</span>:
+  <span class="c-kw">def</span> <span class="c-fn">save</span>(self, d):
+    csv.<span class="c-fn">writer</span>(
+      self.f
+    ).<span class="c-fn">writerows</span>(d)</pre>
+            </div>
+          </div>
+
+          <!-- Metrics -->
+          <div class="metric-row" id="metric-row-snap">
+            <div class="metric-box" data-metric="streak">
+              <div class="metric-top">
+                <svg class="metric-icon-sm flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+                <div class="metric-label">STREAK</div>
+              </div>
+              <div class="metric-value" contenteditable="true" data-field="streakValue">24</div>
+              <div class="metric-sub">days</div>
+            </div>
+            <div class="metric-box" data-metric="focus">
+              <div class="metric-top">
+                <svg class="metric-icon-sm clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <div class="metric-label">FOCUS TIME</div>
+              </div>
+              <div class="metric-value-group">
+                <span class="val" contenteditable="true" data-field="focusHours">5</span><span class="unit">h</span><span class="val" contenteditable="true" data-field="focusMinutes">25</span><span class="unit">m</span>
+              </div>
+              <div class="metric-sub">today</div>
+            </div>
+            <div class="metric-box" data-metric="extra">
+              <div class="metric-top">
+                <svg class="metric-icon-sm target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+                <div class="metric-label">FOCUS %</div>
+              </div>
+              <div class="metric-value green" contenteditable="true" data-field="extraValue">85</div>
+              <div class="metric-sub" style="color:#8fcd9e">%</div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="footer-strip">
+            <div class="footer-strip-left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 5 5.5.8-4 4 1 5.5L12 15l-5 2.3 1-5.5-4-4 5.5-.8z"/></svg>
+              <span contenteditable="true" data-field="footerQuote">Discipline today, freedom tomorrow.</span>
+            </div>
+            <svg class="mountain-badge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19l5-9 4 5 3-5 6 9z"/></svg>
+          </div>
+        </article>
+
+        <!-- ACTION TRAY -->
+        <footer class="action-tray">
+          <button class="tray-btn" data-action="png">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>PNG</span>
+          </button>
+          <div class="tray-sep"></div>
+          <button class="tray-btn" data-action="jpg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>JPG</span>
+          </button>
+          <div class="tray-sep"></div>
+          <button class="tray-btn" data-action="download">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Card</span>
+          </button>
+          <div class="tray-sep"></div>
+          <button class="tray-btn" data-action="copy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy</span>
+          </button>
+          <div class="tray-sep"></div>
+          <button class="tray-btn" data-action="share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
+            <span>Share</span>
+          </button>
+        </footer>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Share modal -->
+<div class="modal-overlay" id="share-modal-overlay">
+  <div class="modal">
+    <h3>Share this card</h3>
+    <p>Wanna share your "dayCard" via Link.</p>
+    <div class="modal-link-row">
+      <input type="text" id="share-link-input" readonly />
+      <button id="copy-link-btn">Copy</button>
+    </div>
+    <button class="modal-close" id="modal-close-btn">Close</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="script.js">
+</script>
+</body>
+</html>
